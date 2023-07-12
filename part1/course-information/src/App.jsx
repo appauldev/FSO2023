@@ -23,8 +23,6 @@ const App = () => {
     ],
   };
 
-  const [counter, setCounter] = useState(0);
-
   const totalExercises =
     course.parts[0].exercises +
     course.parts[1].exercises +
@@ -42,10 +40,6 @@ const App = () => {
         exercise3Count={course.parts[2].exercises}
       />
       <Total totalNumOfExercises={totalExercises} />
-
-      <button onClick={() => setCounter(counter + 1)}>
-        I click {counter} times
-      </button>
     </div>
   );
 };
