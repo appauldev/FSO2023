@@ -62,10 +62,24 @@ button:focus-visible {
   flex-flow: row wrap;
 }
 
+
 .section-wrapper {
   display: flex;
   flex-flow: column wrap;
   align-items: center;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+th, td {
+  border: 1px solid #cecece;
+  text-align: center;
+  padding: 8px;
+}
+.col-attribute {
+  
 }
 
 @media (prefers-color-scheme: light) {
@@ -79,4 +93,8 @@ button:focus-visible {
   button {
     background-color: #f9f9f9;
   }
+}
+
+* {
+  /* outline: 1px solid red; */
 }
