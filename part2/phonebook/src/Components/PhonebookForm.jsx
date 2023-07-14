@@ -19,24 +19,26 @@ function PhonebookForm({
     <div className="section-container">
       <h2>Phonebook</h2>
       <form>
-          <div className="input-group">
-            <label htmlFor="name">Name: </label>
-            <input
-              id="name"
-              type="text"
-              value={newName}
-              onChange={handleOnChangeName}
-            />
-          </div>
-          <div className="input-group">
-            <label htmlFor="number">Number: </label>
-            <input
-              id="number"
-              type="text"
-              value={newNumber}
-              onChange={handleOnChangeNumber}
-            />
-          </div>
+        <div className="input-group">
+          <label htmlFor="name">Name: </label>
+          <input
+            id="name"
+            type="text"
+            placeholder="Enter a name"
+            value={newName}
+            onChange={handleOnChangeName}
+          />
+        </div>
+        <div className="input-group">
+          <label htmlFor="number">Number: </label>
+          <input
+            id="number"
+            type="text"
+            placeholder="Enter number"
+            value={newNumber}
+            onChange={handleOnChangeNumber}
+          />
+        </div>
         <div>
           <div className="form-footer">
             <button type="submit" onClick={handleAddNewName}>

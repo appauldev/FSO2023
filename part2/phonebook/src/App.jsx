@@ -1,20 +1,48 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import PersonService from "./services/PersonService";
 
 import PhonebookForm from "./Components/PhonebookForm";
 import ContactList from "./Components/ContactList";
+import Toast from "./Components/Toast";
 
 const App = () => {
-  const [persons, setPersons] = useState([
-    { name: "Arto Hellas", number: "040-123456", id: 1 },
-    { name: "Ada Lovelace", number: "39-44-5323523", id: 2 },
-    { name: "Dan Abramov", number: "12-43-234345", id: 3 },
-    { name: "Mary Poppendieck", number: "39-23-6423122", id: 4 },
-  ]);
+  const [persons, setPersons] = useState([]);
 
   const [newName, setNewName] = useState("");
   const [newNumber, setNewNumber] = useState("");
   const [searchQuery, setNewSearchQery] = useState("");
-  const [searchQueryResults, setSearchQueryResults] = useState([])
+  const [searchQueryResults, setSearchQueryResults] = useState([]);
+  const [showToast, setShowToast] = useState(false);
+  const [toastConfig, setToastConfig] = useState({
+    type: "SUCCESS",
+    toastMessage: "",
+  });
+  // to update the list of contacts, we can track the last action taken by the user and make that a dependency of useEffect().
+  // Whenever appropriate, we will change the value of lastAction to re-run useEffect() to re-render the updated list of contacts from the db
+  // const [lastAction, setLastAction] = useState("");
+
+  // useEffect() for fetching/updating contact list
+  useEffect(() => {
+    async function fetchContactList() {
+      const response = await PersonService.getAll();
+      if (response.status === 200) {
+        setPersons(response.data);
+      }
+    }
+    fetchContactList();
+  }, []);
+
+  // useEffect() for removing the toast
+  // We're using toastMessage as deps since it will always
+  // change when we use the toast
+  useEffect(() => {
+    function closeToast() {
+      setTimeout(() => {
+        setShowToast(false);
+      }, 5000);
+    }
+    closeToast();
+  }, [toastConfig]);
 
   function handleOnChangeName(event) {
     const newName = event.target.value;
@@ -34,38 +62,95 @@ const App = () => {
       return person.name.toLowerCase().includes(newSearchQuery.toLowerCase());
     });
 
-    console.log(newSearchQueryResults)
+    console.log(newSearchQueryResults);
 
-    setSearchQueryResults(newSearchQueryResults)
+    setSearchQueryResults(newSearchQueryResults);
   }
 
-  function handleAddNewName(event) {
+  async function handleAddNewName(event) {
     event.preventDefault();
-    // check if the name already exists
-    let isPersonAlreadyAContact = false;
-    persons.forEach((person) => {
-      if (person.name.toLowerCase() === newName.toLowerCase()) {
-        isPersonAlreadyAContact = true;
+    // check if the person is already added as a contact
+    const existingPerson = persons.find(
+      (person) => person.name.toLowerCase() === newName.toLowerCase()
+    );
+    // contact already exists, ask user if info wil be updated
+    if (existingPerson) {
+      const result = confirm(
+        `${existingPerson.name} is already added as a contact. Do you want to update their contact number?`
+      );
+      // update person
+      if (result) {
+        // functional programming thingz
+        const updatedPersonData = structuredClone(existingPerson);
+        updatedPersonData.number = newNumber;
+        // update the server
+        const response = await PersonService.updateOne(
+          updatedPersonData.id,
+          updatedPersonData
+        );
+        // person to be updated is already deleted in the db
+        if (response === undefined) {
+          // show the error toast
+          const newToastConfig = {
+            type: "ERROR",
+            toastMessage: `ERROR: ${
+              existingPerson.name
+            } has already been deleted from the contact list (${new Date().toUTCString()}).`,
+          };
+          setToastConfig(newToastConfig);
+          setShowToast(true);
+        }
+        // re-render the contact list upon successful update
+        else if (response && response.status === 200) {
+          // functional programming thingz
+          const updatedContactList = persons.map((person) => {
+            return person.id !== updatedPersonData.id
+              ? person
+              : updatedPersonData;
+          });
+          setPersons(updatedContactList);
+          // show success toast
+          const newToastConfig = {
+            type: "SUCCESS",
+            toastMessage: `SUCCESS: ${
+              response.data.name
+            } has been been updated (${new Date().toUTCString()}).`,
+          };
+          setToastConfig(newToastConfig);
+          setShowToast(true);
+          // reset form inputs and return
+          setNewName("");
+          setNewNumber("");
+        }
         return;
       }
-    });
-    // contact already exists, dont add it to the list
-    if (isPersonAlreadyAContact) {
-      alert(`${newName} is already added as a contact. Aborting operation`);
-      return;
     }
-    // the contact is new, add it to the list
+    // add the new contact to the db
     const newPerson = {
-      id: crypto.randomUUID().split("-")[0],
       name: newName,
       number: newNumber,
     };
-    // save the new contact and reset form inputs
-    setPersons(persons.concat(newPerson));
-    setNewName("");
-    setNewNumber("");
+    const response = await PersonService.create(newPerson);
+    // update the contact list with the newly added data
+    // we can also use the deps parameter of useEffect() with lastAction to update the list
+    if (response.status === 201) {
+      setPersons(persons.concat(response.data));
+      // show the toast
+      const newToastConfig = {
+        type: "SUCCESS",
+        toastMessage: `SUCCESS: ${
+          response.data.name
+        } has been added to the phonebook (${new Date().toUTCString()}).`,
+      };
+      setToastConfig(newToastConfig);
+      setShowToast(true);
+      // reset form inputs
+      setNewName("");
+      setNewNumber("");
+    } else {
+      console.log(response);
+    }
   }
-
   return (
     <div>
       <PhonebookForm
@@ -77,10 +162,16 @@ const App = () => {
       />
       <ContactList
         persons={persons}
+        setPersons={setPersons}
         searchQuery={searchQuery}
         searchQueryResults={searchQueryResults}
         handleChangeSearchQuery={handleChangeSearchQuery}
+        setShowToast={setShowToast}
+        setToastConfig={setToastConfig}
       />
+      {showToast && (
+        <Toast message={toastConfig.toastMessage} type={toastConfig.type} />
+      )}
     </div>
   );
 };
