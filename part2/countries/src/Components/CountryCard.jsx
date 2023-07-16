@@ -16,9 +16,8 @@ function CountryCard({ countryData }) {
     async function fetchWeatherData() {
       const OPENWEATHER_API_KEY = import.meta.env.VITE_OPENWEATHER_API_KEY;
       const response = await axios.get(
-        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&appid=${OPENWEATHER_API_KEY}`
+        `https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lng}&units=metric&appid=${OPENWEATHER_API_KEY}`
       );
-      console.log(response);
       setWeatherData(response.data);
     }
     fetchWeatherData();
@@ -29,10 +28,12 @@ function CountryCard({ countryData }) {
         <h1>{countryData.name.common}</h1>
         <h3>Capital: {countryData.capital}</h3>
         <h3>Area: {countryData.area}</h3>
-        <h3>Languages</h3>
-        {Object.keys(countryData.languages).map((lang_key) => {
-          return <li key={lang_key}>{countryData.languages[lang_key]}</li>;
-        })}
+        <div className="flex-col">
+          <h3>Languages</h3>
+          {Object.keys(countryData.languages).map((lang_key) => {
+            return <li key={lang_key}>{countryData.languages[lang_key]}</li>;
+          })}
+        </div>
         <img src={countryData.flags.svg} alt={countryData.flags.alt} />
         {weatherData && (
           <>
@@ -42,9 +43,15 @@ function CountryCard({ countryData }) {
                 src={`https://openweathermap.org/img/wn/${weatherData.weather[0].icon}@2x.png`}
                 alt="weather icon"
               />
-              <span>Weather: {weatherData.weather[0].description}</span>
-              <span>Temperature: {weatherData.main.temp}</span>
-              <span>Wind speed: {weatherData.wind.speed}</span>
+              <span>
+                Weather: <b>{weatherData.weather[0].description}</b>
+              </span>
+              <span>
+                Temperature (°C): <b>{weatherData.main.temp}</b>
+              </span>
+              <span>
+                Wind speed (meter/second): <b>{weatherData.wind.speed}</b>
+              </span>
             </div>
           </>
         )}

@@ -13,7 +13,6 @@ function App() {
   useEffect(() => {
     async function fetchCountries() {
       const response = await CountryService.getAllCountries();
-      console.log(response);
       setCountries(response.data);
     }
 
