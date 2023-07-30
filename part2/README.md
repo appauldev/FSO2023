@@ -4,6 +4,7 @@ Kindly install `pnpm` and use `pnpm dev --open` to run each react app.
 - (no notable notes)
 ## phonebook app
 - The app uses a toast to display the notification messages to the user
+- (part 3) The endpoints has been modified to relative URLs to prevent issues during deployment 
 ## countries app
 - The app uses the [OpenWeather Current Weather Data API](https://openweathermap.org/current) to display the weather of the countries
 - Kindly create a `.env.local` file in the root folder and add an environment variable named `VITE_OPENWEATHER_API_KEY` where you need to place your OpenWeather API key.
