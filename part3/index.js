@@ -6,6 +6,8 @@ import crypto from "node:crypto";
 
 const app = express();
 
+app.use(express.static("frontend-build"));
+
 morgan.token("body", function getReqBody(req) {
   return JSON.stringify(req.body);
 });

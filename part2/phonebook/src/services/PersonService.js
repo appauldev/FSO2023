@@ -1,5 +1,5 @@
 import axios from "axios";
-const baseURL = "http://localhost:33001/api/persons";
+const baseURL = "/api/persons";
 
 async function getAll() {
   try {
