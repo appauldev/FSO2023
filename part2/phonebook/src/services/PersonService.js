@@ -1,5 +1,5 @@
 import axios from "axios";
-const baseURL = "http://localhost:3000/persons";
+const baseURL = "http://localhost:33001/api/persons";
 
 async function getAll() {
   try {
@@ -33,7 +33,7 @@ async function updateOne(personId, newPersonData) {
 
 async function deleteOne(personId) {
   try {
-    const response = await axios.delete(`${baseURL}/${personId}`, { personId });
+    const response = await axios.delete(`${baseURL}/${personId}`);
     return response;
   } catch (error) {
     console.error(error);

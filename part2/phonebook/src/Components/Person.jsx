@@ -1,7 +1,7 @@
 import PropTypes from "prop-types";
 import PersonService from "../services/PersonService";
 Person.propTypes = {
-  id: PropTypes.number.isRequired,
+  id: PropTypes.string.isRequired,
   name: PropTypes.string.isRequired,
   number: PropTypes.string.isRequired,
   persons: PropTypes.array.isRequired,

@@ -26,7 +26,7 @@ const App = () => {
     async function fetchContactList() {
       const response = await PersonService.getAll();
       if (response.status === 200) {
-        setPersons(response.data);
+        setPersons(response.data.phonebook_data);
       }
     }
     fetchContactList();
@@ -133,13 +133,13 @@ const App = () => {
     const response = await PersonService.create(newPerson);
     // update the contact list with the newly added data
     // we can also use the deps parameter of useEffect() with lastAction to update the list
-    if (response.status === 201) {
-      setPersons(persons.concat(response.data));
+    if (response.status === 200) {
+      setPersons(response.data.phonebook_data);
       // show the toast
       const newToastConfig = {
         type: "SUCCESS",
         toastMessage: `SUCCESS: ${
-          response.data.name
+          newPerson.name
         } has been added to the phonebook (${new Date().toUTCString()}).`,
       };
       setToastConfig(newToastConfig);
