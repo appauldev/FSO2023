@@ -3,6 +3,7 @@ import morgan from "morgan";
 import cors from "cors";
 import PHONEBOOK_DATA from "./data.js";
 import crypto from "node:crypto";
+import * as PersonService from "./Service/PersonService.js";
 
 const app = express();
 
@@ -25,32 +26,40 @@ const BASE_URL = "/api";
 
 let pb_data = [...PHONEBOOK_DATA];
 
-app.get(`${BASE_URL}/persons`, (req, res) => {
+app.get(`${BASE_URL}/persons`, async (req, res) => {
+  const data = await PersonService.getAll();
+  if (data.error) {
+    res.status(500).send({
+      message: "Internal server error",
+    });
+  }
   const response = {
     success: true,
-    phonebook_data: pb_data,
+    phonebook_data: data,
   };
   res.json(response);
 });
 
-app.get(`${BASE_URL}/persons/:id`, (req, res) => {
+app.get(`${BASE_URL}/persons/:id`, async (req, res) => {
   const id = req.params.id;
 
-  const person = pb_data.find((person) => {
-    return id === person.id;
-  });
+  const person = await PersonService.getOne(id);
 
-  if (person === undefined) {
+  if (person === null) {
     res.status(404).send({
       message: `Person with id '${id}' not found`,
     });
     return;
   }
-
+  if (person.error) {
+    res.status(500).send({
+      message: "Internal server error",
+    });
+  }
   res.json(person);
 });
 
-app.post(`${BASE_URL}/persons/`, (req, res) => {
+app.post(`${BASE_URL}/persons/`, async (req, res) => {
   const new_person = req.body;
   // validate request
   // name and number should exist in the request
@@ -62,26 +71,24 @@ app.post(`${BASE_URL}/persons/`, (req, res) => {
     return;
   }
   // dont accept duplicate names
-  const doesNameExist = pb_data.find((person) => {
-    return person.name.toLowerCase() === new_person.name.toLowerCase();
-  });
-  if (doesNameExist !== undefined) {
+  const doesNameExist = await PersonService.getOne(undefined, new_person.name);
+  if (doesNameExist !== null) {
     res.status(409).json({
-      message: `The name '${new_person.name}' already exists`,
+      message: `The name '${new_person.name}' already exists in the phonebook`,
     });
     return;
   }
-  // valid request
-  const id = crypto.randomUUID().split("-")[1];
-  const new_data = {
-    id,
-    ...new_person,
-  };
-  pb_data = [...pb_data, new_data];
+  // valid request, add new person to phonebook
+  const data = await PersonService.addOne(new_person);
+  if (data.error) {
+    res.status(500).send({
+      message: "Internal server error",
+    });
+  }
 
   const response = {
     success: true,
-    phonebook_data: pb_data,
+    newlyAddedContact: data,
   };
   res.json(response);
 });
@@ -97,8 +104,9 @@ app.delete(`${BASE_URL}/persons/:id`, (req, res) => {
   });
 });
 
-app.get(`${BASE_URL}/info`, (req, res) => {
-  const pb_info = `<p>Phonebook has info for ${pb_data.length} people</p>`;
+app.get(`${BASE_URL}/info`, async (req, res) => {
+  const data = await PersonService.getAll();
+  const pb_info = `<p>Phonebook has info for ${data.length} people</p>`;
   const current_date = `<p>${new Date().toUTCString()}</p>`;
   const response = `${pb_info}${current_date}`;
   res.send(response);

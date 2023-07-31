@@ -134,7 +134,7 @@ const App = () => {
     // update the contact list with the newly added data
     // we can also use the deps parameter of useEffect() with lastAction to update the list
     if (response.status === 200) {
-      setPersons(response.data.phonebook_data);
+      setPersons([...persons, response.data.newlyAddedContact]);
       // show the toast
       const newToastConfig = {
         type: "SUCCESS",
