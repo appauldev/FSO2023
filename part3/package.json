@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "start": "node index.js",
+    "build:ui": "rm -rf frontend-dist && cd ../part2/phonebook && pnpm build && cp -r dist ../../part3/frontend-dist",
     "dev": "nodemon index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },

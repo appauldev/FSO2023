@@ -8,5 +8,5 @@ The folder `frontend-dist` contains the same files found in `part2/phonebook/dis
 ## Important Links
 ###  Deployment
 https://lq4kny-33001.csb.app/ (via https://codesandbox.io)
-### REST API Endpoints (via Postman share)
+### REST API Endpoints Reference (via Postman share)
 https://www.postman.com/appauldev/workspace/fso2023/collection/3991734-5dc83d62-8d1f-4083-bcc7-ab96e373df21?action=share&creator=3991734
