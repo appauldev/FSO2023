@@ -1,5 +1,5 @@
-import mongoose from "mongoose";
-import { validateNumber } from "../Errors/Validators/NumberValidator.js";
+import mongoose from 'mongoose';
+import { validateNumber } from '../Errors/Validators/NumberValidator.js';
 
 // A Person document will be added to the 'contact_list' collection
 const personSchema = new mongoose.Schema(
@@ -7,7 +7,7 @@ const personSchema = new mongoose.Schema(
     name: {
       type: String,
       required: true,
-      minLength: [3, "Name must be at least 3 characters"],
+      minLength: [3, 'Name must be at least 3 characters'],
     },
     number: {
       type: String,
@@ -15,16 +15,16 @@ const personSchema = new mongoose.Schema(
       validate: validateNumber(),
     },
   },
-  { collection: "contact_list" }
+  { collection: 'contact_list' }
 );
 
-personSchema.set("toJSON", {
+personSchema.set('toJSON', {
   transform: (document, returnedObj) => {
     returnedObj.id = returnedObj._id.toString();
     delete returnedObj._id;
     delete returnedObj.__v;
   },
 });
-const PersonModel = mongoose.model("contact_list", personSchema);
+const PersonModel = mongoose.model('contact_list', personSchema);
 
 export default PersonModel;

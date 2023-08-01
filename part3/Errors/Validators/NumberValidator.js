@@ -1,4 +1,4 @@
-export function validateNumber(num) {
+export function validateNumber() {
   function validateMinLength(num) {
     return num.length >= 8;
   }
@@ -11,11 +11,11 @@ export function validateNumber(num) {
   const validators = [
     {
       validator: validateMinLength,
-      message: "Number must be at least 8 characters.",
+      message: 'Number must be at least 8 characters.',
     },
     {
       validator: validateFormat,
-      message: "Please follow the proper number format.",
+      message: 'Please follow the proper number format.',
     },
   ];
 

@@ -1,10 +1,10 @@
-import mongoose, { mongo } from "mongoose";
-import PersonModel from "../Models/Person.js";
-import dotenv from "dotenv";
-import { Error500 } from "../Errors/CustomErrorClasses.js";
+import mongoose from 'mongoose';
+import PersonModel from '../Models/Person.js';
+import dotenv from 'dotenv';
+import process from 'node:process';
 
 // prep the connection string for MongoDB
-dotenv.config({ path: ".env.local" });
+dotenv.config({ path: '.env.local' });
 const URI = process.env.MONGODB_PART3_CLUSTER0_URI;
 
 export async function addOne(personObj) {

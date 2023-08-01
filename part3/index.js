@@ -1,28 +1,24 @@
-import express from "express";
-import morgan from "morgan";
-import * as PersonService from "./Service/PersonService.js";
-import { errorHandler } from "./Errors/ErrorHandler.js";
-import {
-  validateFormat,
-  validateNumber,
-} from "./Errors/Validators/NumberValidator.js";
+import express from 'express';
+import morgan from 'morgan';
+import * as PersonService from './Service/PersonService.js';
+import { errorHandler } from './Errors/ErrorHandler.js';
 
 const app = express();
 // logger
-morgan.token("body", function getReqBody(req) {
+morgan.token('body', function getReqBody(req) {
   return JSON.stringify(req.body);
 });
 
-app.use(express.static("frontend-dist"));
+app.use(express.static('frontend-dist'));
 app.use(express.json());
 app.use(
   morgan(
-    ":date[web]\n:method :url :status :res[content-length] - :response-time ms :body"
+    ':date[web]\n:method :url :status :res[content-length] - :response-time ms :body'
   )
 );
 
 const PORT = 33001;
-const BASE_URL = "/api";
+const BASE_URL = '/api';
 
 app.get(`${BASE_URL}/persons`, async (req, res, next) => {
   try {
@@ -60,10 +56,10 @@ app.post(`${BASE_URL}/persons/`, async (req, res, next) => {
     const new_person = req.body;
     // validate request
     // name and number should exist in the request
-    if (new_person.name === "" || new_person.number === "") {
+    if (new_person.name === '' || new_person.number === '') {
       res.status(400).json({
         message:
-          "Bad request. Please make sure that you have filled both name and number.",
+          'Bad request. Please make sure that you have filled both name and number.',
       });
       return;
     }
@@ -123,7 +119,7 @@ app.get(`${BASE_URL}/info`, async (req, res, next) => {
 });
 
 const unknownEndpoint = (request, response) => {
-  response.status(404).send({ error: "unknown endpoint" });
+  response.status(404).send({ error: 'unknown endpoint' });
 };
 
 // handler of requests with unknown endpoint
