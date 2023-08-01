@@ -93,9 +93,9 @@ const App = () => {
           // show the error toast
           const newToastConfig = {
             type: "ERROR",
-            toastMessage: `ERROR: ${
+            toastMessage: `ERROR: Cannot update ${
               existingPerson.name
-            } has already been deleted from the contact list (${new Date().toUTCString()}).`,
+            }. See the logs for more info (${new Date().toUTCString()}).`,
           };
           setToastConfig(newToastConfig);
           setShowToast(true);
