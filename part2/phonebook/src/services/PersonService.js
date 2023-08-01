@@ -17,7 +17,7 @@ async function create(newContact) {
     return response;
   } catch (error) {
     console.error(error);
-    alert(error);
+    return error;
   }
 }
 

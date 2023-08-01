@@ -1,10 +1,19 @@
 import mongoose from "mongoose";
+import { validateNumber } from "../Errors/Validators/NumberValidator.js";
 
 // A Person document will be added to the 'contact_list' collection
 const personSchema = new mongoose.Schema(
   {
-    name: String,
-    number: String,
+    name: {
+      type: String,
+      required: true,
+      minLength: [3, "Name must be at least 3 characters"],
+    },
+    number: {
+      type: String,
+      required: true,
+      validate: validateNumber(),
+    },
   },
   { collection: "contact_list" }
 );

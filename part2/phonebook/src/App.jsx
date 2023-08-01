@@ -131,6 +131,7 @@ const App = () => {
       number: newNumber,
     };
     const response = await PersonService.create(newPerson);
+    console.log(response);
     // update the contact list with the newly added data
     // we can also use the deps parameter of useEffect() with lastAction to update the list
     if (response.status === 200) {
@@ -147,6 +148,13 @@ const App = () => {
       // reset form inputs
       setNewName("");
       setNewNumber("");
+    } else if (response.code === "ERR_BAD_REQUEST") {
+      const newToastConfig = {
+        type: "ERROR",
+        toastMessage: `ERROR: ${response.response.data.message}`,
+      };
+      setToastConfig(newToastConfig);
+      setShowToast(true);
     } else {
       console.log(response);
     }

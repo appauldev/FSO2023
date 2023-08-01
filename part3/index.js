@@ -2,6 +2,10 @@ import express from "express";
 import morgan from "morgan";
 import * as PersonService from "./Service/PersonService.js";
 import { errorHandler } from "./Errors/ErrorHandler.js";
+import {
+  validateFormat,
+  validateNumber,
+} from "./Errors/Validators/NumberValidator.js";
 
 const app = express();
 // logger
@@ -51,7 +55,7 @@ app.get(`${BASE_URL}/persons/:id`, async (req, res, next) => {
   }
 });
 
-app.post(`${BASE_URL}/persons/`, async (req, res) => {
+app.post(`${BASE_URL}/persons/`, async (req, res, next) => {
   try {
     const new_person = req.body;
     // validate request
@@ -75,7 +79,7 @@ app.post(`${BASE_URL}/persons/`, async (req, res) => {
   }
 });
 
-app.put(`${BASE_URL}/persons/:id`, async (req, res) => {
+app.put(`${BASE_URL}/persons/:id`, async (req, res, next) => {
   const id = req.params.id;
   const updated_info = req.body;
   try {
@@ -86,7 +90,7 @@ app.put(`${BASE_URL}/persons/:id`, async (req, res) => {
   }
 });
 
-app.delete(`${BASE_URL}/persons/:id`, async (req, res) => {
+app.delete(`${BASE_URL}/persons/:id`, async (req, res, next) => {
   try {
     const id = req.params.id;
     const data = await PersonService.deleteOne(id);
