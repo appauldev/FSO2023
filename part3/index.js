@@ -1,6 +1,6 @@
 import express from 'express';
 import morgan from 'morgan';
-import * as PersonService from './Service/PersonService.js';
+import * as PersonService from './Services/PersonService.js';
 import { errorHandler } from './Errors/ErrorHandler.js';
 
 const app = express();
