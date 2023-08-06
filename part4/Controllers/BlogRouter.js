@@ -1,11 +1,9 @@
 import express from 'express';
 import mongoose from 'mongoose';
-import dotenv from 'dotenv';
-import process from 'node:process';
 import { BlogModel } from '../Models/BlogModel.js';
+import config from '../Config/config.js';
 
-dotenv.config({ path: '.env.local' });
-const URI = process.env.MONGODB_PART4_CLUSTER0_URI;
+const URI = config.determineURI();
 
 const BlogRouter = express.Router();
 
@@ -21,10 +19,39 @@ BlogRouter.get('/', async (req, res, next) => {
   }
 });
 
+BlogRouter.get('/:id', async (req, res, next) => {
+  try {
+    await mongoose.connect(URI);
+    const id = req.params.id;
+    const data = await BlogModel.findById(id);
+    // console.log(data);
+    res.json(data);
+  } catch (error) {
+    next(error);
+  }
+});
+
 BlogRouter.post('/', async (req, res, next) => {
   try {
     await mongoose.connect(URI);
-    const new_blog = req.body;
+    let new_blog = req.body;
+    let isTitleOrAuthorBlank = new_blog.title === '' || new_blog.author === '';
+    let isTitleOrAuthorMissing =
+      !('author' in new_blog) || !('title' in new_blog);
+
+    // check if title or author is missing
+    if (isTitleOrAuthorBlank || isTitleOrAuthorMissing) {
+      res.status(400).json({
+        message:
+          'Bad Request. Check if the request is missing its value for `author` or `title`',
+      });
+      return;
+    }
+    // check if likes property exists
+    if (!('likes' in new_blog)) {
+      new_blog = { ...new_blog, likes: 0 };
+    }
+
     const data = await BlogModel.create(new_blog);
     const response = {
       success: true,
