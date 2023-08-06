@@ -1,6 +1,7 @@
 export function errorHandler(err, req, res, next) {
-  console.error(err.message);
-  console.log('############ERRRORRR HANDLER###############');
+  // console.log('############ERRRORRR HANDLER###############');
+  // console.error(err);
+  // console.log('############ERRRORRR HANDLER###############');
 
   if (err.name === 'CastError') {
     return res.status(400).send({
@@ -17,6 +18,7 @@ export function errorHandler(err, req, res, next) {
       route: req.url,
     });
   } else {
+    next(err);
     return res.status(500).send({
       type: err.name,
       message: err.message,

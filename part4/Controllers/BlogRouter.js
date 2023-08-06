@@ -16,6 +16,8 @@ BlogRouter.get('/', async (req, res, next) => {
     res.json(data);
   } catch (error) {
     next(error);
+  } finally {
+    await mongoose.connection.close();
   }
 });
 
@@ -28,6 +30,8 @@ BlogRouter.get('/:id', async (req, res, next) => {
     res.json(data);
   } catch (error) {
     next(error);
+  } finally {
+    await mongoose.connection.close();
   }
 });
 
@@ -61,6 +65,56 @@ BlogRouter.post('/', async (req, res, next) => {
     res.json(response);
   } catch (error) {
     next(error);
+  } finally {
+    await mongoose.connection.close();
+  }
+});
+
+BlogRouter.put('/:id', async (req, res, next) => {
+  await mongoose.connect(URI);
+  try {
+    const id = req.params.id;
+    const updated_info = req.body;
+
+    const response = await BlogModel.findByIdAndUpdate(id, updated_info, {
+      new: true,
+    });
+
+    if (!response) {
+      res.status(400).json({
+        message: 'Bad Request. The `id` to be updated does not exist',
+      });
+
+      return;
+    }
+
+    res.json(response);
+  } catch (error) {
+    next(error);
+  }
+});
+
+BlogRouter.delete('/:id', async (req, res, next) => {
+  try {
+    await mongoose.connect(URI);
+    const id = req.params.id;
+
+    const response = await BlogModel.findByIdAndDelete(id);
+    if (!response) {
+      res.status(400).json({
+        message: 'Bad Request. The `id` to be deleted does not exist',
+      });
+
+      return;
+    }
+    res.json({
+      success: true,
+      deleted_data: response,
+    });
+  } catch (error) {
+    next(error);
+  } finally {
+    await mongoose.connection.close();
   }
 });
 
