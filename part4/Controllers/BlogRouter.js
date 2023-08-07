@@ -2,6 +2,7 @@ import express from 'express';
 import mongoose from 'mongoose';
 import { BlogModel } from '../Models/BlogModel.js';
 import config from '../Config/config.js';
+import { getRandomUser } from '../Utils/randomUser.js';
 
 const URI = config.determineURI();
 
@@ -12,7 +13,10 @@ BlogRouter.use(express.json());
 BlogRouter.get('/', async (req, res, next) => {
   try {
     await mongoose.connect(URI);
-    const data = await BlogModel.find({});
+    const data = await BlogModel.find({}).populate('user', {
+      username: 1,
+      name: 1,
+    });
     res.json(data);
   } catch (error) {
     next(error);
@@ -39,15 +43,17 @@ BlogRouter.post('/', async (req, res, next) => {
   try {
     await mongoose.connect(URI);
     let new_blog = req.body;
+
+    // validate
     let isTitleOrAuthorBlank = new_blog.title === '' || new_blog.author === '';
     let isTitleOrAuthorMissing =
       !('author' in new_blog) || !('title' in new_blog);
-
     // check if title or author is missing
     if (isTitleOrAuthorBlank || isTitleOrAuthorMissing) {
       res.status(400).json({
+        error: 'MISSING_INPUT',
         message:
-          'Bad Request. Check if the request is missing its value for `author` or `title`',
+          'Check if the request is missing its value for `author` or `title`',
       });
       return;
     }
@@ -56,7 +62,15 @@ BlogRouter.post('/', async (req, res, next) => {
       new_blog = { ...new_blog, likes: 0 };
     }
 
+    // get random user
+    const rand_user = await getRandomUser();
+    new_blog = { ...new_blog, user: rand_user._id };
+    // save to db
     const data = await BlogModel.create(new_blog);
+
+    rand_user.blogs = rand_user.blogs.concat(data._id);
+    await rand_user.save();
+
     const response = {
       success: true,
       newly_added_blog: data,
