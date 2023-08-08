@@ -46,6 +46,7 @@ BlogRouter.post('/', async (req, res, next) => {
   try {
     // verify user
     const decoded_token = jwt.verify(req.token, config.getJWTSecret());
+    console.log(decoded_token);
     if (!decoded_token.id) {
       res.status(400).json({
         error: 'INVALID_TOKEN',
@@ -55,7 +56,7 @@ BlogRouter.post('/', async (req, res, next) => {
 
     // valid token
     await mongoose.connect(URI);
-    const user = await UserModel.findById(decoded_token.id);
+    const user = await UserModel.findById(req.user.id);
 
     let new_blog = req.body;
 
@@ -141,13 +142,13 @@ BlogRouter.delete('/:id', async (req, res, next) => {
 
     // valid JWT
     // verify if user is allowed to delete the blog
-    await mongoose.connect(URI);
-    const user_id = decoded_token.id;
+    const user = req.user;
     const blog_id = req.params.id;
 
+    await mongoose.connect(URI);
     const response = await BlogModel.findOneAndDelete({
       _id: blog_id,
-      user: user_id,
+      user: user.id,
     });
 
     if (!response) {

@@ -44,7 +44,7 @@ LoginRouter.post('/', async (req, res, next) => {
 
     //jwt
     const userToken = {
-      user: username,
+      username: existingUser.username,
       id: existingUser.id,
     };
     console.log(userToken);
