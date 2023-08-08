@@ -1,5 +1,6 @@
 import process from 'node:process';
 import dotenv from 'dotenv';
+// import bcrypt from 'bcrypt';
 
 dotenv.config({ path: '.env.local' });
 
@@ -13,4 +14,10 @@ function determineURI() {
   return URI_MAPPING[process.env.NODE_ENV];
 }
 
-export default { PORT, determineURI };
+function getJWTSecret() {
+  // const hashedSecret = await bcrypt.hash(process.env.SUPER_ULTRA_SECRET, 10);
+  // console.log(hashedSecret);
+  return process.env.SUPER_ULTRA_SECRET_HASHED;
+}
+
+export default { PORT, determineURI, getJWTSecret };

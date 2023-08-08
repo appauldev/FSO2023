@@ -1,6 +1,7 @@
 import express from 'express';
 import mongoose from 'mongoose';
 import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 import { UserModel } from '../Models/UserModel.js';
 import config from '../Config/config.js';
 
@@ -18,7 +19,7 @@ LoginRouter.post('/', async (req, res, next) => {
       { username },
       { name: 1, username: 1, password: 1 }
     );
-    console.log(existingUser);
+    // console.log(existingUser);
     // immediate return if usernmae does not exist
     if (!existingUser) {
       res.status(401).json({
@@ -40,11 +41,21 @@ LoginRouter.post('/', async (req, res, next) => {
       });
       return;
     }
+
+    //jwt
+    const userToken = {
+      user: username,
+      id: existingUser.id,
+    };
+    console.log(userToken);
+    const JWT_TOKEN = jwt.sign(userToken, await config.getJWTSecret());
+
     // we coould just simply return `success: true`
     // but it's good to have some safeguards for ~unexpected events
     if (existingUser && is_password_correct) {
       res.json({
         success: true,
+        JWT_TOKEN,
         user_info: existingUser,
       });
     } else {

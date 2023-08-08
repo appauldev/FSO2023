@@ -1,8 +1,11 @@
 import express from 'express';
 import mongoose from 'mongoose';
+import jwt from 'jsonwebtoken';
 import { BlogModel } from '../Models/BlogModel.js';
 import config from '../Config/config.js';
-import { getRandomUser } from '../Utils/randomUser.js';
+// import { getRandomUser } from '../Utils/randomUser.js';
+// import BlogRouterHelper from '../Utils/BlogRouterHelper.js';
+import { UserModel } from '../Models/UserModel.js';
 
 const URI = config.determineURI();
 
@@ -41,7 +44,19 @@ BlogRouter.get('/:id', async (req, res, next) => {
 
 BlogRouter.post('/', async (req, res, next) => {
   try {
+    // verify user
+    const decoded_JWT_TOKEN = jwt.verify(req.token, config.getJWTSecret());
+    if (!decoded_JWT_TOKEN.id) {
+      res.status(400).json({
+        error: 'INVALID_TOKEN',
+        message: 'You must be logged in to make this request.',
+      });
+    }
+
+    // valid token
     await mongoose.connect(URI);
+    const user = await UserModel.findById(decoded_JWT_TOKEN.id);
+
     let new_blog = req.body;
 
     // validate
@@ -62,14 +77,19 @@ BlogRouter.post('/', async (req, res, next) => {
       new_blog = { ...new_blog, likes: 0 };
     }
 
-    // get random user
-    const rand_user = await getRandomUser();
-    new_blog = { ...new_blog, user: rand_user._id };
+    // // get random user
+    // const rand_user = await getRandomUser();
+    // new_blog = { ...new_blog, user: rand_user._id };
+
+    // user of the note must be the one in the decoded token
+    new_blog = { ...new_blog, user: user._id };
     // save to db
     const data = await BlogModel.create(new_blog);
 
-    rand_user.blogs = rand_user.blogs.concat(data._id);
-    await rand_user.save();
+    // rand_user.blogs = rand_user.blogs.concat(data._id);
+    // await rand_user.save();
+    user.blogs = user.blogs.concat(data._id);
+    await user.save();
 
     const response = {
       success: true,

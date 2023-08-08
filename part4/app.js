@@ -5,12 +5,14 @@ import { LoginRouter } from './Controllers/LoginRouter.js';
 import { errorHandler } from './Middlewares/ErrorHandler.js';
 import { unknownEndpoint } from './Middlewares/UnknownEndpoint.js';
 import { UserRouter } from './Controllers/UserRouter.js';
+import tokenExtractor from './Middlewares/tokenExtractor.js';
 
 const app = express();
 
 // middleware
 app.use(cors());
 app.use(express.json());
+app.use(tokenExtractor.readJWTToken);
 
 app.use('/api/blogs', BlogRouter);
 app.use('/api/login', LoginRouter);
