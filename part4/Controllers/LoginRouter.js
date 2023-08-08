@@ -14,7 +14,11 @@ LoginRouter.post('/', async (req, res, next) => {
     const { username, password } = req.body;
 
     // check if username exists in the db
-    const existingUser = await UserModel.findOne({ username });
+    const existingUser = await UserModel.findOne(
+      { username },
+      { name: 1, username: 1, password: 1 }
+    );
+    console.log(existingUser);
     // immediate return if usernmae does not exist
     if (!existingUser) {
       res.status(401).json({
@@ -41,6 +45,7 @@ LoginRouter.post('/', async (req, res, next) => {
     if (existingUser && is_password_correct) {
       res.json({
         success: true,
+        user_info: existingUser,
       });
     } else {
       res.status(500).json({
