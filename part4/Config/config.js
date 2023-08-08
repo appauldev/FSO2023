@@ -15,6 +15,10 @@ function determineURI() {
 }
 
 function getJWTSecret() {
+  // uncomment the following two lines to generate a hashed
+  //  secret based on your SUPER_ULTRA_SECRET in .env.local
+  // Use the resulting hash as a value for your SUPER_ULTRA_SECRET_HASHED
+  //  and comment the two lines below again
   // const hashedSecret = await bcrypt.hash(process.env.SUPER_ULTRA_SECRET, 10);
   // console.log(hashedSecret);
   return process.env.SUPER_ULTRA_SECRET_HASHED;
