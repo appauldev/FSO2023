@@ -45,8 +45,8 @@ BlogRouter.get('/:id', async (req, res, next) => {
 BlogRouter.post('/', async (req, res, next) => {
   try {
     // verify user
-    const decoded_JWT_TOKEN = jwt.verify(req.token, config.getJWTSecret());
-    if (!decoded_JWT_TOKEN.id) {
+    const decoded_token = jwt.verify(req.token, config.getJWTSecret());
+    if (!decoded_token.id) {
       res.status(400).json({
         error: 'INVALID_TOKEN',
         message: 'You must be logged in to make this request.',
@@ -55,7 +55,7 @@ BlogRouter.post('/', async (req, res, next) => {
 
     // valid token
     await mongoose.connect(URI);
-    const user = await UserModel.findById(decoded_JWT_TOKEN.id);
+    const user = await UserModel.findById(decoded_token.id);
 
     let new_blog = req.body;
 
@@ -130,17 +130,35 @@ BlogRouter.put('/:id', async (req, res, next) => {
 
 BlogRouter.delete('/:id', async (req, res, next) => {
   try {
-    await mongoose.connect(URI);
-    const id = req.params.id;
+    // verify JWT
+    const decoded_token = jwt.verify(req.token, config.getJWTSecret());
+    if (!decoded_token.id) {
+      res.status(400).json({
+        error: 'INVALID_TOKEN',
+        message: 'You must be logged in to make this request.',
+      });
+    }
 
-    const response = await BlogModel.findByIdAndDelete(id);
+    // valid JWT
+    // verify if user is allowed to delete the blog
+    await mongoose.connect(URI);
+    const user_id = decoded_token.id;
+    const blog_id = req.params.id;
+
+    const response = await BlogModel.findOneAndDelete({
+      _id: blog_id,
+      user: user_id,
+    });
+
     if (!response) {
       res.status(400).json({
-        message: 'Bad Request. The `id` to be deleted does not exist',
+        error: 'NULL_RESPONSE',
+        message:
+          'You are not allowed to delete the resource or the resource may have already been deleted',
       });
-
       return;
     }
+
     res.json({
       success: true,
       deleted_data: response,
