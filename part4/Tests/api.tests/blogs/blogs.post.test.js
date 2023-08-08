@@ -39,7 +39,7 @@ describe('POST /api/blogs', () => {
     // check if right data was saved
     const id = response.body.newly_added_blog.id;
     const newly_saved_blog = await api.get(`/api/blogs/${id}`);
-    expect(newly_saved_blog.body).toEqual({ ...new_blog, id });
+    expect(newly_saved_blog.body).toMatchObject({ ...new_blog, id });
   });
 
   test('request without the `likes` property must default to `likes: 0`', async () => {
@@ -89,12 +89,8 @@ describe('POST /api/blogs', () => {
       .expect(400)
       .expect('Content-Type', /application\/json/);
     // verify
-    expect(response_without_author.body.message).toBe(
-      'Bad Request. Check if the request is missing its value for `author` or `title`'
-    );
-    expect(response_without_title.body.message).toBe(
-      'Bad Request. Check if the request is missing its value for `author` or `title`'
-    );
+    expect(response_without_author.body.error).toBe('MISSING_INPUT');
+    expect(response_without_title.body.error).toBe('MISSING_INPUT');
   });
 
   test('should receive error 400 Bad Request when `author` or `title` has blank values', async () => {
@@ -125,12 +121,27 @@ describe('POST /api/blogs', () => {
       .expect(400)
       .expect('Content-Type', /application\/json/);
 
-    expect(response_with_blank_author.body.message).toBe(
-      'Bad Request. Check if the request is missing its value for `author` or `title`'
-    );
+    expect(response_with_blank_author.body.error).toBe('MISSING_INPUT');
+    expect(response_with_blank_title.body.error).toBe('MISSING_INPUT');
+  });
 
-    expect(response_with_blank_title.body.message).toBe(
-      'Bad Request. Check if the request is missing its value for `author` or `title`'
-    );
+  test('a newly created blog must have a `user` property', async () => {
+    const new_blog = {
+      title: 'Multi-database',
+      author: 'Nialle Goddert.sf',
+      url: 'https://slate.com/nonummy/integer/non/velit/donec/diam/neque.xml',
+      likes: 2,
+    };
+
+    // execute
+    const res_new_blog_with_user = await api
+      .post('/api/blogs')
+      .send(new_blog)
+      .expect(200)
+      .expect('Content-Type', /application\/json/);
+
+    // verify
+    const newly_added_blog = res_new_blog_with_user.body.newly_added_blog;
+    expect(newly_added_blog).toHaveProperty('user');
   });
 });
