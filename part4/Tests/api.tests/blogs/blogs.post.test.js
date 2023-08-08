@@ -7,7 +7,7 @@ import MOCK_DATA from './MOCK_DATA';
 
 const api = supertest(app);
 
-beforeAll(async () => {
+beforeEach(async () => {
   await mongoose.connect(config.determineURI());
   await BlogModel.deleteMany({});
   await BlogModel.create(MOCK_DATA.blog_list);
@@ -18,28 +18,67 @@ describe('POST /api/blogs', () => {
   test('a blog post item must be saved correctly to the db', async () => {
     // setup
     const new_blog = {
-      title: 'Multi-channelled actuating database',
+      title: 'Multi-channelled JWT Bearer Auth',
       author: 'Niall Goddert.sf',
       url: 'https://slate.com/nonummy/integer/non/velit/donec/diam/neque.xml',
       likes: 24,
     };
 
     // execute
+    // The username of the jwt is "jay"
+    // console.log(`Bearer ${config.getSampleBearerToken()}`);
     const response = await api
       .post('/api/blogs')
       .send(new_blog)
+      .set('Authorization', `Bearer ${config.getSampleBearerToken()}`)
       .expect(200)
       .expect('Content-Type', /application\/json/);
     // console.log(response.body);
 
     // verify
     // check length
-    const updated_blog_list = await api.get('/api/blogs').expect(200);
+    const updated_blog_list = await api
+      .get('/api/blogs')
+      .set('Authorization', `Bearer ${config.getSampleBearerToken()}`)
+      .expect(200);
     expect(updated_blog_list.body.length).toBe(MOCK_DATA.blog_list.length + 1);
     // check if right data was saved
     const id = response.body.newly_added_blog.id;
-    const newly_saved_blog = await api.get(`/api/blogs/${id}`);
+    const newly_saved_blog = await api
+      .get(`/api/blogs/${id}`)
+      .set('Authorization', `Bearer ${config.getSampleBearerToken()}`)
+      .expect(200);
     expect(newly_saved_blog.body).toMatchObject({ ...new_blog, id });
+  });
+
+  test('response must be 401 Unauthorized when `Authorization` header is missing', async () => {
+    // setup
+    const new_blog = {
+      title: 'Should not be saved',
+      author: 'Niall Goddert.sf',
+      url: 'https://slate.com/nonummy/integer/non/velit/donec/diam/neque.xml',
+      likes: 24,
+    };
+
+    // execute
+    // The username of the jwt is "jay"
+    // console.log(`Bearer ${config.getSampleBearerToken()}`);
+    const response = await api
+      .post('/api/blogs')
+      .send(new_blog)
+      .set('Authorization', '')
+      .expect(401)
+      .expect('Content-Type', /application\/json/);
+    // console.log(response.body);
+
+    // verify
+    expect(response.body.type).toBe('JsonWebTokenError');
+    // check length
+    const updated_blog_list = await api
+      .get('/api/blogs')
+      .set('Authorization', `Bearer ${config.getSampleBearerToken()}`)
+      .expect(200);
+    expect(updated_blog_list.body.length).toBe(MOCK_DATA.blog_list.length);
   });
 
   test('request without the `likes` property must default to `likes: 0`', async () => {
@@ -53,6 +92,7 @@ describe('POST /api/blogs', () => {
     // execute
     const response = await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${config.getSampleBearerToken()}`)
       .send(req_without_likes)
       .expect(200)
       .expect('Content-Type', /application\/json/);
@@ -80,11 +120,13 @@ describe('POST /api/blogs', () => {
     // execute
     const response_without_author = await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${config.getSampleBearerToken()}`)
       .send(req_without_author)
       .expect(400)
       .expect('Content-Type', /application\/json/);
     const response_without_title = await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${config.getSampleBearerToken()}`)
       .send(req_without_title)
       .expect(400)
       .expect('Content-Type', /application\/json/);
@@ -111,12 +153,14 @@ describe('POST /api/blogs', () => {
     // execute
     const response_with_blank_author = await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${config.getSampleBearerToken()}`)
       .send(req_with_blank_author)
       .expect(400)
       .expect('Content-Type', /application\/json/);
 
     const response_with_blank_title = await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${config.getSampleBearerToken()}`)
       .send(req_with_blank_title)
       .expect(400)
       .expect('Content-Type', /application\/json/);
@@ -136,6 +180,7 @@ describe('POST /api/blogs', () => {
     // execute
     const res_new_blog_with_user = await api
       .post('/api/blogs')
+      .set('Authorization', `Bearer ${config.getSampleBearerToken()}`)
       .send(new_blog)
       .expect(200)
       .expect('Content-Type', /application\/json/);

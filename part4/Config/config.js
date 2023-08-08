@@ -20,4 +20,7 @@ function getJWTSecret() {
   return process.env.SUPER_ULTRA_SECRET_HASHED;
 }
 
-export default { PORT, determineURI, getJWTSecret };
+function getSampleBearerToken() {
+  return process.env.SAMPLE_BEARER_AUTH;
+}
+export default { PORT, determineURI, getJWTSecret, getSampleBearerToken };

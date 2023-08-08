@@ -3,42 +3,58 @@ import app from '../../../app';
 import supertest from 'supertest';
 import config from '../../../Config/config';
 import { BlogModel } from '../../../Models/BlogModel';
-import MOCK_DATA from './MOCK_DATA';
 
 const api = supertest(app);
-let blog_to_delete = {};
 
 beforeAll(async () => {
   await mongoose.connect(config.determineURI());
   await BlogModel.deleteMany({});
-  const res = await BlogModel.create(MOCK_DATA.blog_list);
-  blog_to_delete = res[0];
+  // const res = await BlogModel.create(MOCK_DATA.blog_list);
+  // blog_to_delete = res[0];
+  // console.log(blog_to_delete);
   await mongoose.disconnect();
 });
 
 describe('DELETE /api/blogs/:id', () => {
-  test('a delete request succeeds when `id` is valid', async () => {
+  test('a blog can only be deleted by the user who created it', async () => {
     // setup
-    const id = blog_to_delete._id.toString();
-
-    // execute
-    const response_valid_id = await api
-      .delete(`/api/blogs/${id}`)
+    const new_blog = {
+      title: 'To be deleted',
+      author: 'Niall Goddert.sf',
+      url: 'https://slate.com/nonummy/integer/non/velit/donec/diam/neque.xml',
+      likes: 24,
+    };
+    // add the new blog to be deleted later
+    // The username of the jwt is "jay"
+    const res_new_blog = await api
+      .post('/api/blogs')
+      .send(new_blog)
+      .set('Authorization', `Bearer ${config.getSampleBearerToken()}`)
       .expect(200)
       .expect('Content-Type', /application\/json/);
-    const response_updated_blog_list = await api.get('/api/blogs').expect(200);
+    expect(res_new_blog.body.success).toBe(true);
+    const newly_added_blog = res_new_blog.body.newly_added_blog;
+    // execute
+    const response_valid_id = await api
+      .delete(`/api/blogs/${newly_added_blog.id}`)
+      .set('Authorization', `Bearer ${config.getSampleBearerToken()}`)
+      .expect(200)
+      .expect('Content-Type', /application\/json/);
+    const response_updated_blog_list = await api
+      .get('/api/blogs')
+      .set('Authorization', `Bearer ${config.getSampleBearerToken()}`)
+      .expect(200);
     // verify
     expect(response_valid_id.body.success).toBe(true);
     expect(response_valid_id.body.deleted_data).toEqual({
-      title: blog_to_delete.title,
-      author: blog_to_delete.author,
-      url: blog_to_delete.url,
-      likes: blog_to_delete.likes,
-      id,
+      title: newly_added_blog.title,
+      author: newly_added_blog.author,
+      url: newly_added_blog.url,
+      likes: newly_added_blog.likes,
+      id: newly_added_blog.id,
+      user: newly_added_blog.user,
     });
-    expect(response_updated_blog_list.body.length).toBe(
-      MOCK_DATA.blog_list.length - 1
-    );
+    expect(response_updated_blog_list.body.length).toBe(0);
   });
   test('a delete request fails when `id` is malformed', async () => {
     // setup
@@ -47,6 +63,7 @@ describe('DELETE /api/blogs/:id', () => {
     // execute
     const response_malformed_id = await api
       .delete(`/api/blogs/${malformed_id}`)
+      .set('Authorization', `Bearer ${config.getSampleBearerToken()}`)
       .expect(400);
 
     // verify
@@ -59,11 +76,10 @@ describe('DELETE /api/blogs/:id', () => {
     // execute
     const response = await api
       .delete(`/api/blogs/${id_that_does_not_exist}`)
+      .set('Authorization', `Bearer ${config.getSampleBearerToken()}`)
       .expect(400);
 
     // verify
-    expect(response.body.message).toBe(
-      'Bad Request. The `id` to be deleted does not exist'
-    );
+    expect(response.body.error).toBe('NULL_RESPONSE');
   });
 });

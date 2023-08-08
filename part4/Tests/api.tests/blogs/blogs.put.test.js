@@ -28,6 +28,7 @@ describe('PUT /api/blogs/:id', () => {
     // execute
     const response = await api
       .put(`/api/blogs/${id}`)
+      .set('Authorization', `Bearer ${config.getSampleBearerToken()}`)
       .send(update_request_info)
       .expect(200);
 
@@ -47,6 +48,7 @@ describe('PUT /api/blogs/:id', () => {
     // execute
     const response_malformed_id = await api
       .put(`/api/blogs/${malformed_id}`)
+      .set('Authorization', `Bearer ${config.getSampleBearerToken()}`)
       .expect(400);
 
     // verify
@@ -59,6 +61,7 @@ describe('PUT /api/blogs/:id', () => {
     // execute
     const response = await api
       .put(`/api/blogs/${id_that_does_not_exist}`)
+      .set('Authorization', `Bearer ${config.getSampleBearerToken()}`)
       .expect(400);
 
     // verify

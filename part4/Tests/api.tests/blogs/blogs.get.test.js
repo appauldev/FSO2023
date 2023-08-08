@@ -22,6 +22,7 @@ describe('GET api/blogs', () => {
   test('should get all the list of blog posts', async () => {
     const response = await api
       .get('/api/blogs')
+      .set('Authorization', `Bearer ${config.getSampleBearerToken()}`)
       .expect(200)
       .expect('Content-Type', /application\/json/);
 
@@ -29,7 +30,10 @@ describe('GET api/blogs', () => {
   });
 
   test('all blog post must have an id', async () => {
-    const response = await api.get('/api/blogs').expect(200);
+    const response = await api
+      .get('/api/blogs')
+      .set('Authorization', `Bearer ${config.getSampleBearerToken()}`)
+      .expect(200);
 
     response.body.forEach((blog) => {
       expect(blog.id).toBeDefined();
