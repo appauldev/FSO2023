@@ -3,18 +3,11 @@ import { IconUserCircle, IconBook, IconCirclePlus } from '@tabler/icons-react';
 import ProfileCard from './ProfileCard';
 
 import BlogList from './BlogList';
+import AddBlogForm from './AddBlogForm';
 
 function Main() {
   return (
-    <Tabs
-      color="dark"
-      variant="pills"
-      radius="lg"
-      defaultValue="blog_list"
-      style={{
-        outline: '1px solid red',
-      }}
-    >
+    <Tabs color="dark" variant="pills" radius="lg" defaultValue="add_new_blog">
       <Tabs.List grow w={1000}>
         <Tabs.Tab value="profile" icon={<IconUserCircle size="1rem" />}>
           <Text fz={16}>Profile</Text>
@@ -34,7 +27,7 @@ function Main() {
       </Tabs.Panel>
 
       <Tabs.Panel value="add_new_blog" p="xl">
-        Messages tab content
+        <AddBlogForm />
       </Tabs.Panel>
 
       <Tabs.Panel value="blog_list" p="xl">

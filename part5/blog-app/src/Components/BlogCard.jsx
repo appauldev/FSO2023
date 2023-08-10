@@ -38,22 +38,22 @@ function BlogCard({ id, title, author, url, likes }) {
       <Card.Section mb="sm">
         <Image src={url} alt={title} height={180} />
       </Card.Section>
+      <div>
+        {/* <Badge>{category}</Badge> */}
+        <Text fz="xl" fw={700} className={classes.title} mt="xs" lineClamp={2}>
+          {title}
+        </Text>
 
-      {/* <Badge>{category}</Badge> */}
-
-      <Text fw={700} className={classes.title} mt="xs" lineClamp={2}>
-        {title}
-      </Text>
-
-      <Group mt="lg">
-        <Avatar src={''} radius="sm" />
-        <div>
-          <Text fw={500}>{author}</Text>
-          <Text fz="xs" c="dimmed">
-            {id}
-          </Text>
-        </div>
-      </Group>
+        <Group mt="lg">
+          <Avatar src={''} radius="sm" />
+          <div>
+            <Text fw={500}>{author}</Text>
+            <Text fz="xs" c="dimmed">
+              {id}
+            </Text>
+          </div>
+        </Group>
+      </div>
 
       <Card.Section className={classes.footer}>
         <Group position="apart">

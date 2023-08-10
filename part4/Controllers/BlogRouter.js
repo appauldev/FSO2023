@@ -47,7 +47,7 @@ BlogRouter.post('/', async (req, res, next) => {
     // verify user
     const decoded_token = jwt.verify(req.token, config.getJWTSecret());
     if (!decoded_token.id) {
-      res.status(400).json({
+      res.status(401).json({
         error: 'INVALID_TOKEN',
         message: 'You must be logged in to make this request.',
       });

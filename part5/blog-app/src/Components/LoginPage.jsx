@@ -12,10 +12,13 @@ import {
   rem,
 } from '@mantine/core';
 import { useForm, zodResolver } from '@mantine/form';
+import { notifications } from '@mantine/notifications';
+import { IconExclamationCircle } from '@tabler/icons-react';
 import { loginSchema } from '../Validations/LoginValidation';
 import LoginService from '../Services/LoginService';
 import LoginStore from '../Stores/LoginStore';
-export function LoginPage() {
+
+function LoginPage() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [, setIsLoggedIn] = useAtom(LoginStore.loginStatus);
   const form = useForm({
@@ -60,10 +63,24 @@ export function LoginPage() {
                 username: 'Wrong credentials',
                 password: 'Wrong credentials',
               });
+              notifications.show({
+                title: 'Log in error',
+                message:
+                  'Your login credentials are invalid. Please try again.',
+                color: 'red',
+                icon: <IconExclamationCircle />,
+                autoClose: 6000,
+              });
             } else if (response.status === 200) {
               console.log('LOGIN SUCCESSFUL');
               LoginService.saveLoginToLocalStorage(response);
               setIsLoggedIn(true);
+            } else {
+              console.log(response);
+              form.setErrors({
+                title:
+                  'Something is wrong on the server. Please check the logs',
+              });
             }
           })}
         >
@@ -102,3 +119,5 @@ export function LoginPage() {
     </Container>
   );
 }
+
+export default LoginPage;
