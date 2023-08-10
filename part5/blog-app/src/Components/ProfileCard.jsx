@@ -15,7 +15,7 @@ function ProfileCard() {
     console.log('LOG OUT');
   }
   return (
-    <Paper p="1rem" radius="md" w={400}>
+    <Paper p="1rem" radius="md" w={400} withBorder shadow="sm">
       <Flex direction="column" align="center" rowGap=".5rem" mb={12}>
         <Text fz="2rem" weight={500}>{`${name}`}</Text>
         <Group>

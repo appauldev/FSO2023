@@ -3,12 +3,12 @@ import { useAtom } from 'jotai';
 
 import { LoginPage } from './Components/LoginPage';
 import LoginStore from './Stores/LoginStore';
-import BlogHomePage from './Components/BlogHomePage';
+import Main from './Components/Main';
 
 function App() {
   const [isLoggedIn] = useAtom(LoginStore.loginStatus);
 
-  return <>{isLoggedIn ? <BlogHomePage /> : <LoginPage />}</>;
+  return <>{isLoggedIn ? <Main /> : <LoginPage />}</>;
 }
 
 export default App;
