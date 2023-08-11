@@ -10,8 +10,8 @@ function ProfileCard() {
   const [, setIsLoggedIn] = useAtom(LoginStore.loginStatus);
 
   function logout() {
-    window.localStorage.clear();
     setIsLoggedIn(false);
+    window.localStorage.clear();
     console.log('LOG OUT');
   }
   return (

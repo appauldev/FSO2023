@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAtom } from 'jotai';
+import { getDefaultStore, useAtom } from 'jotai';
 import {
   TextInput,
   PasswordInput,
@@ -19,8 +19,10 @@ import LoginService from '../Services/LoginService';
 import LoginStore from '../Stores/LoginStore';
 
 function LoginPage() {
+  const defaultStore = getDefaultStore();
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [, setIsLoggedIn] = useAtom(LoginStore.loginStatus);
+  // const [isLoggedIn, setIsLoggedIn] = useAtom(LoginStore.loginStatus);
+
   const form = useForm({
     initialValues: {
       username: '',
@@ -74,7 +76,7 @@ function LoginPage() {
             } else if (response.status === 200) {
               console.log('LOGIN SUCCESSFUL');
               LoginService.saveLoginToLocalStorage(response);
-              setIsLoggedIn(true);
+              defaultStore.set(LoginStore.loginStatus, true);
             } else {
               console.log(response);
               form.setErrors({

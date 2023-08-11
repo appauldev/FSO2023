@@ -1,5 +1,5 @@
 import './App.css';
-import { useAtom } from 'jotai';
+import { useAtomValue } from 'jotai';
 import { QueryClientProvider, QueryClient } from '@tanstack/react-query';
 
 import LoginPage from './Components/LoginPage';
@@ -8,8 +8,8 @@ import Main from './Components/Main';
 
 function App() {
   const queryClient = new QueryClient();
-
-  const [isLoggedIn] = useAtom(LoginStore.loginStatus);
+  const isLoggedIn = useAtomValue(LoginStore.loginStatus);
+  console.log('isLoggedIn', isLoggedIn);
 
   return (
     <>

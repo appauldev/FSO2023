@@ -15,7 +15,13 @@ BlogRouter.use(express.json());
 
 BlogRouter.get('/', async (req, res, next) => {
   try {
+    // quick fix for MongoNotConnectedError
     await mongoose.connect(URI);
+    console.log(mongoose.connection.readyState);
+    while (mongoose.connection.readyState !== 1) {
+      await mongoose.connect(URI);
+      console.log(mongoose.connection.readyState);
+    }
     const data = await BlogModel.find({}).populate('user', {
       username: 1,
       name: 1,

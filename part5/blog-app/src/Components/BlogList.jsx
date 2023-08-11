@@ -6,7 +6,6 @@ import BlogService from '../Services/BlogService';
 
 function BlogList() {
   const JWT_TOKEN = window.localStorage.getItem('JWT_TOKEN');
-
   const { isLoading, isError, data, error } = useQuery({
     queryKey: ['qk_blogList'],
     queryFn: async () => {
