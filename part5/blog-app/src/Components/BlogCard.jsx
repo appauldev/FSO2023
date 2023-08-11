@@ -34,7 +34,7 @@ function BlogCard({ id, title, author, url, likes }) {
   const { classes, theme } = useStyles();
 
   return (
-    <Card withBorder w={300} padding="lg" radius="md" className={classes.card}>
+    <Card withBorder w={280} padding="lg" radius="md" className={classes.card}>
       <Card.Section mb="sm">
         <Image src={url} alt={title} height={180} />
       </Card.Section>
