@@ -90,6 +90,7 @@ function AddBlogForm() {
           <TextInput
             label="URL"
             placeholder="Blog URL"
+            description="You may use https://source.unsplash.com/random/300×300"
             required
             disabled={isSubmitting}
             mt="md"

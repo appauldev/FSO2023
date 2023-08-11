@@ -107,4 +107,32 @@ async function updateOne(JWT_TOKEN, updated_info) {
   }
 }
 
-export default { getOne, getAll, addOne, updateOne };
+async function deleteOne(JWT_TOKEN, blog_id) {
+  try {
+    const response = await axios.delete(
+      `${config.baseURL}/api/blogs/${blog_id}`,
+      {
+        headers: {
+          Authorization: `Bearer ${JWT_TOKEN}`,
+        },
+      }
+    );
+    return response;
+  } catch (error) {
+    console.log(error);
+    if (error.response) {
+      //   console.log(error.response.status);
+      //   console.log(error.response.data);
+      return {
+        status: error.response.status,
+      };
+    } else if (error.request) {
+      console.log(error.request);
+    } else {
+      console.log('ERROR', error.message);
+    }
+    console.log(error.config);
+  }
+}
+
+export default { getOne, getAll, addOne, updateOne, deleteOne };

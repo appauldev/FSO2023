@@ -12,6 +12,7 @@ import {
   Popover,
 } from '@mantine/core';
 import { IconHeart, IconHeartFilled, IconTrash } from '@tabler/icons-react';
+import { notifications } from '@mantine/notifications';
 import { useState } from 'react';
 import BlogService from '../Services/BlogService';
 
@@ -41,30 +42,50 @@ function BlogCard({ id, title, author, url, likes, user }) {
   const [hideDetails, setHideDetails] = useState(true);
   const [isLiked, setIsLiked] = useState(false);
   const [likesCount, setLikesCount] = useState(likes);
+  const [popoverOpened, setPopoverOpened] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
+  const [isDeleted, setIsDeleted] = useState(false);
   const [lineClamp] = useState(1);
   const current_user = window.localStorage.getItem('user_id');
+  const JWT_TOKEN = window.localStorage.getItem('JWT_TOKEN');
 
   async function updateLike() {
-    const JWT_TOKEN = window.localStorage.getItem('JWT_TOKEN');
-    if (isLiked) {
-      // undo the like
-      const new_likes = likesCount - 1;
+    const new_likes = isLiked ? likesCount - 1 : likesCount + 1;
+    try {
       const response = await BlogService.updateOne(JWT_TOKEN, {
         id,
         likes: new_likes,
       });
       console.log(response);
-      setIsLiked(false);
+      const newIsLiked = isLiked ? false : true;
+      setIsLiked(newIsLiked);
       setLikesCount(new_likes);
-    } else {
-      const new_likes = likesCount + 1;
-      const response = await BlogService.updateOne(JWT_TOKEN, {
-        id,
-        likes: new_likes,
-      });
+    } catch (error) {
+      console.log(error);
+    }
+  }
+
+  async function deleteBlog() {
+    try {
+      setIsDeleting(true);
+      const response = await BlogService.deleteOne(JWT_TOKEN, id);
       console.log(response);
-      setIsLiked(true);
-      setLikesCount(new_likes);
+      if (response.data.success) {
+        // close popover and remove blog from list
+        setPopoverOpened(false);
+        setTimeout(() => {
+          setIsDeleted(true);
+        }, 500);
+        notifications.show({
+          title: 'Blog deleted!',
+          message: `${response.data.deleted_data.title} has been deleted`,
+          color: 'red',
+          icon: <IconTrash />,
+        });
+      }
+    } catch (error) {
+      console.log(error);
+      setIsDeleting(false);
     }
   }
 
@@ -76,6 +97,7 @@ function BlogCard({ id, title, author, url, likes, user }) {
       padding="lg"
       radius="md"
       className={classes.card}
+      display={isDeleted ? 'none' : 'block'}
     >
       <Card.Section mb="sm">
         <Image src={url} alt={title} height={180} />
@@ -150,9 +172,20 @@ function BlogCard({ id, title, author, url, likes, user }) {
               </ActionIcon>
 
               {current_user === user.id ? (
-                <Popover withArrow withBorder withinPortal position="left-end">
+                <Popover
+                  withArrow
+                  withinPortal
+                  position="left-end"
+                  opened={popoverOpened}
+                  onChange={setPopoverOpened}
+                >
                   <Popover.Target>
-                    <ActionIcon color="gray">
+                    <ActionIcon
+                      color="gray"
+                      onClick={() => {
+                        setPopoverOpened((isOpen) => !isOpen);
+                      }}
+                    >
                       <IconTrash
                         size="1.2rem"
                         color={theme.colors.gray[6]}
@@ -162,12 +195,29 @@ function BlogCard({ id, title, author, url, likes, user }) {
                   </Popover.Target>
                   <Popover.Dropdown>
                     <Stack>
-                      <Text>Do you want to delete this blog?</Text>
+                      <Text>
+                        Do you want to delete this blog? <br />
+                        This action is not reversible.
+                      </Text>
                       <Group>
-                        <Button variant="outline" color="gray">
+                        <Button
+                          variant="outline"
+                          color="gray"
+                          loading={isDeleting}
+                          onClick={() => {
+                            setPopoverOpened((isOpen) => !isOpen);
+                          }}
+                        >
                           Cancel
                         </Button>
-                        <Button variant="filled" color="red">
+                        <Button
+                          variant="filled"
+                          color="red"
+                          loading={isDeleting}
+                          onClick={() => {
+                            deleteBlog();
+                          }}
+                        >
                           Delete blog
                         </Button>
                       </Group>
