@@ -9,9 +9,11 @@ import {
   rem,
   Button,
   Stack,
+  Popover,
 } from '@mantine/core';
-import { IconHeart } from '@tabler/icons-react';
+import { IconHeart, IconHeartFilled, IconTrash } from '@tabler/icons-react';
 import { useState } from 'react';
+import BlogService from '../Services/BlogService';
 
 const useStyles = createStyles((theme) => ({
   card: {
@@ -37,15 +39,56 @@ function BlogCard({ id, title, author, url, likes, user }) {
   const { classes, theme } = useStyles();
   const [buttonLabel, setButtonLabel] = useState('View details');
   const [hideDetails, setHideDetails] = useState(true);
+  const [isLiked, setIsLiked] = useState(false);
+  const [likesCount, setLikesCount] = useState(likes);
+  const [lineClamp] = useState(1);
+  const current_user = window.localStorage.getItem('user_id');
+
+  async function updateLike() {
+    const JWT_TOKEN = window.localStorage.getItem('JWT_TOKEN');
+    if (isLiked) {
+      // undo the like
+      const new_likes = likesCount - 1;
+      const response = await BlogService.updateOne(JWT_TOKEN, {
+        id,
+        likes: new_likes,
+      });
+      console.log(response);
+      setIsLiked(false);
+      setLikesCount(new_likes);
+    } else {
+      const new_likes = likesCount + 1;
+      const response = await BlogService.updateOne(JWT_TOKEN, {
+        id,
+        likes: new_likes,
+      });
+      console.log(response);
+      setIsLiked(true);
+      setLikesCount(new_likes);
+    }
+  }
 
   return (
-    <Card withBorder w={280} padding="lg" radius="md" className={classes.card}>
+    <Card
+      withBorder
+      shadow="sm"
+      w={280}
+      padding="lg"
+      radius="md"
+      className={classes.card}
+    >
       <Card.Section mb="sm">
         <Image src={url} alt={title} height={180} />
       </Card.Section>
 
       <Stack>
-        <Text fz="xl" fw={700} className={classes.title} mt="xs" lineClamp={2}>
+        <Text
+          fz="xl"
+          fw={700}
+          className={classes.title}
+          mt="xs"
+          lineClamp={hideDetails ? lineClamp : 0}
+        >
           {title}
         </Text>
         <Button
@@ -86,16 +129,52 @@ function BlogCard({ id, title, author, url, likes, user }) {
           </Text>
           <Group position="apart" pt="1rem">
             <Text fz="xs" c="dimmed">
-              {`${likes} people have liked this`}
+              {`${likesCount} people have liked this`}
             </Text>
             <Group spacing={0}>
-              <ActionIcon>
-                <IconHeart
-                  size="1.2rem"
-                  color={theme.colors.red[6]}
-                  stroke={1.5}
-                />
+              <ActionIcon
+                color="red"
+                onClick={() => {
+                  updateLike();
+                }}
+              >
+                {isLiked ? (
+                  <IconHeartFilled
+                    size="1.2rem"
+                    color={theme.colors.red[6]}
+                    stroke={1.5}
+                  />
+                ) : (
+                  <IconHeart size="1.2rem" color={theme.colors.red[6]} />
+                )}
               </ActionIcon>
+
+              {current_user === user.id ? (
+                <Popover withArrow withBorder withinPortal position="left-end">
+                  <Popover.Target>
+                    <ActionIcon color="gray">
+                      <IconTrash
+                        size="1.2rem"
+                        color={theme.colors.gray[6]}
+                        stroke={1.5}
+                      />
+                    </ActionIcon>
+                  </Popover.Target>
+                  <Popover.Dropdown>
+                    <Stack>
+                      <Text>Do you want to delete this blog?</Text>
+                      <Group>
+                        <Button variant="outline" color="gray">
+                          Cancel
+                        </Button>
+                        <Button variant="filled" color="red">
+                          Delete blog
+                        </Button>
+                      </Group>
+                    </Stack>
+                  </Popover.Dropdown>
+                </Popover>
+              ) : null}
             </Group>
           </Group>
         </Card.Section>

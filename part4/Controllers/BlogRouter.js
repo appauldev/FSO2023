@@ -111,10 +111,23 @@ BlogRouter.post('/', async (req, res, next) => {
 });
 
 BlogRouter.put('/:id', async (req, res, next) => {
-  await mongoose.connect(URI);
   try {
+    // quick fix for MongoNotConnectedError
+    await mongoose.connect(URI);
+    console.log(mongoose.connection.readyState);
+    while (mongoose.connection.readyState !== 1) {
+      await mongoose.connect(URI);
+      console.log(mongoose.connection.readyState);
+    }
+
     const id = req.params.id;
     const updated_info = req.body;
+    console.log(updated_info);
+    if (updated_info.likes < 0) {
+      updated_info.likes = 1;
+    }
+    // const user = updated_info.user.id;
+    // updated_info.user = user;
 
     const response = await BlogModel.findByIdAndUpdate(id, updated_info, {
       new: true,

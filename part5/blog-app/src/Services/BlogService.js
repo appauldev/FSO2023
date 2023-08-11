@@ -76,4 +76,35 @@ async function addOne(JWT_TOKEN, new_blog) {
   }
 }
 
-export default { getOne, getAll, addOne };
+async function updateOne(JWT_TOKEN, updated_info) {
+  const blog_id = updated_info.id;
+  try {
+    const response = await axios.put(
+      `${config.baseURL}/api/blogs/${blog_id}`,
+      updated_info,
+      {
+        headers: {
+          Authorization: `Bearer ${JWT_TOKEN}`,
+        },
+      }
+    );
+
+    return response;
+  } catch (error) {
+    console.log(error);
+    if (error.response) {
+      //   console.log(error.response.status);
+      //   console.log(error.response.data);
+      return {
+        status: error.response.status,
+      };
+    } else if (error.request) {
+      console.log(error.request);
+    } else {
+      console.log('ERROR', error.message);
+    }
+    console.log(error.config);
+  }
+}
+
+export default { getOne, getAll, addOne, updateOne };
