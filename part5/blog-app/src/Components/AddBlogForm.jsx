@@ -1,5 +1,4 @@
 import { useState } from 'react';
-import { useAtom } from 'jotai';
 import { TextInput, Paper, Title, Container, Button, rem } from '@mantine/core';
 import { useForm, zodResolver } from '@mantine/form';
 import { notifications } from '@mantine/notifications';

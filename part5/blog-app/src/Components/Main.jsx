@@ -8,12 +8,7 @@ import AddBlogForm from './AddBlogForm';
 function Main() {
   return (
     <Container mt="2rem">
-      <Tabs
-        color="dark"
-        variant="pills"
-        radius="xl"
-        defaultValue="add_new_blog"
-      >
+      <Tabs color="dark" variant="pills" radius="xl" defaultValue="blog_list">
         <Tabs.List grow>
           <Tabs.Tab value="profile" icon={<IconUserCircle size="1rem" />}>
             <Text fz={16}>Profile</Text>
